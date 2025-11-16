@@ -1,5 +1,4 @@
 import * as cheerio from 'cheerio';
-import he from 'he';
 import logger from '../utils/logger';
 import { AmazonOrder, AmazonOrderItem, ParsedEmail } from '../types';
 
