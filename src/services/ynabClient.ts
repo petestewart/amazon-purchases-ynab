@@ -2,6 +2,8 @@ import * as ynab from 'ynab';
 import logger from '../utils/logger';
 import { config } from '../config';
 import { ItemWithTax } from '../types';
+import type { SaveTransaction } from 'ynab/dist/models/SaveTransaction';
+import { TransactionClearedStatus } from 'ynab/dist/models/TransactionClearedStatus';
 
 /**
  * YNAB API client for creating transactions
@@ -23,35 +25,34 @@ export class YNABClient {
     date: Date = new Date()
   ): Promise<string> {
     try {
-      const transaction: ynab.SaveTransaction = {
+      const transaction: SaveTransaction = {
         account_id: config.ynab.accountId,
         date: this.formatDate(date),
         amount: this.convertToMilliunits(amount),
         payee_name: payeeName,
         memo: memo,
-        cleared: ynab.SaveTransaction.ClearedEnum.Uncleared,
+        cleared: TransactionClearedStatus.Uncleared,
         approved: true,
       };
 
       logger.info(`Creating YNAB transaction: ${payeeName} - $${amount.toFixed(2)}`);
 
-      const response = await this.api.transactions.createTransaction(
-        config.ynab.budgetId,
-        { transaction }
-      );
+      const response = await this.api.transactions.createTransaction(config.ynab.budgetId, {
+        transaction,
+      });
 
-      const createdId = response.data.transaction.id;
+      const createdId = response.data.transaction_ids?.[0];
+      if (!createdId) {
+        throw new Error('YNAB response missing transaction id');
+      }
       logger.info(`Transaction created with ID: ${createdId}`);
 
       return createdId;
     } catch (error) {
-      if (error instanceof ynab.utils.ApiError) {
-        logger.error(`YNAB API Error: ${error.error.detail}`, {
-          error: error.error,
-        });
-      } else {
-        logger.error(`Error creating YNAB transaction: ${error}`);
-      }
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      logger.error(`Error creating YNAB transaction: ${errorMessage}`, {
+        error,
+      });
       throw error;
     }
   }
@@ -143,11 +144,10 @@ export class YNABClient {
 
       return true;
     } catch (error) {
-      if (error instanceof ynab.utils.ApiError) {
-        logger.error(`YNAB API Error: ${error.error.detail}`);
-      } else {
-        logger.error(`Error verifying YNAB connection: ${error}`);
-      }
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      logger.error(`Error verifying YNAB connection: ${errorMessage}`, {
+        error,
+      });
       return false;
     }
   }

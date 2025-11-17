@@ -1,0 +1,138 @@
+Delivered-To: petestew@gmail.com
+Received: by 2002:ab3:634c:0:b0:2d0:8c5f:d5fb with SMTP id k12csp2829268ltf;
+        Sun, 16 Nov 2025 07:57:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE4lq5Albw9D03KNOXZxI1O/XAcHcPkJpwY+BSU9ZSvry1jB6fxvqQVyNJioJCqEz3SviSU
+X-Received: by 2002:a05:620a:17a3:b0:8b2:6443:83e6 with SMTP id af79cd13be357-8b2c31db4b6mr1212441585a.79.1763308619909;
+        Sun, 16 Nov 2025 07:56:59 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1763308619; cv=none;
+        d=google.com; s=arc-20240605;
+        b=IGsJ3EyjlIyBsGh75S3XX9Slov6C17XbdwI7hiidjAxlRgbNe8SvzRYx7XCLpPOYn+
+         2L7y5XRVwWG2CZgk4zMA9F/iJ1wBuodkrtQAMMCXj+XREuLW4/bSIV49xHjxT3N/Sjcd
+         GggmOXdJjucje5goGff186PR2rfsF40XuthB00bAZKXHqQNS6XIbDDVe/vu68C2nLw9m
+         BBG/XPhsAKDu82kNuTXjd+XJ/Pj9yrOpuGCGfA9FDLLhJPmcRHp5bqJUWpRp6iWkdPFY
+         CuQJ51ac6qttWahRacb38QWBVrReGkfLquS6sFWaAQUwfRrYw2PHrfUgVApYB0/vRf0O
+         cTEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=feedback-id:bounces-to:mime-version:subject:message-id:to:from:date
+         :dkim-signature:dkim-signature;
+        bh=m4f7xkSaWQ9noaVV2MaibdgIEvC5qkjO5LkNhS5Syec=;
+        fh=j4tRUBwgw+Hv0699bEZqcVxH5Ww/ctQrN3GNsV6lqgM=;
+        b=h4qF7J1YQhf2oDGqnuZ68NxBKs6YeJJW3vvArzo1h7SstxsT4KM9/c6a7CLZBcL2v5
+         8kR1lim+M7vjM1G6m8JKQfb0oGZnCc58qmUJ+lxndI3IZ83pRSn99xkGsUUNruNjn5UA
+         0lX16MMWi+Qm1K6cRs3NWAv9wqEoJstSLmijb+xdSLjSShDuRFEEYZIAsnw2kofEXg49
+         CqHSddOtsXP0K0/I6R83hL1MD5WeHU1vwv7n5x9cnxO3zKcjod3LOJmyMzy2g212tpLb
+         +3ep+KUNGzT+zh4p920QreLlO57DqPHJo7qYTTKC7YAHaxQaAvzX5PYRbzkI+H2tjmPf
+         e11g==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@amazon.com header.s=jvxsykglqiaiibkijmhy37vqxh4mzqr6 header.b=NzkmtsW0;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=cCsjHMXw;
+       spf=pass (google.com: domain of 2025111615565834cc541da68d474e94b67a409620p0na-c39zak9dxfbm50@bounces.amazon.com designates 54.240.13.113 as permitted sender) smtp.mailfrom=2025111615565834cc541da68d474e94b67a409620p0na-C39ZAK9DXFBM50@bounces.amazon.com;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=amazon.com
+Return-Path: <2025111615565834cc541da68d474e94b67a409620p0na-C39ZAK9DXFBM50@bounces.amazon.com>
+Received: from a13-113.smtp-out.amazonses.com (a13-113.smtp-out.amazonses.com. [54.240.13.113])
+        by mx.google.com with ESMTPS id af79cd13be357-8b2af0560a7si334773685a.1331.2025.11.16.07.56.59
+        for <petestew@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 16 Nov 2025 07:56:59 -0800 (PST)
+Received-SPF: pass (google.com: domain of 2025111615565834cc541da68d474e94b67a409620p0na-c39zak9dxfbm50@bounces.amazon.com designates 54.240.13.113 as permitted sender) client-ip=54.240.13.113;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@amazon.com header.s=jvxsykglqiaiibkijmhy37vqxh4mzqr6 header.b=NzkmtsW0;
+       dkim=pass header.i=@amazonses.com header.s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw header.b=cCsjHMXw;
+       spf=pass (google.com: domain of 2025111615565834cc541da68d474e94b67a409620p0na-c39zak9dxfbm50@bounces.amazon.com designates 54.240.13.113 as permitted sender) smtp.mailfrom=2025111615565834cc541da68d474e94b67a409620p0na-C39ZAK9DXFBM50@bounces.amazon.com;
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=amazon.com
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=jvxsykglqiaiibkijmhy37vqxh4mzqr6; d=amazon.com; t=1763308619; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type; bh=AiyBYeWfFSnRmoNvxWH7GjR1ukBqKJ2EMMwG/mDp1Sc=; b=NzkmtsW0mF2khCpIb7xGx9g3ekXkLvbYczgp+6s07w2XQh4l2L+xZHmPxD5NTHK9 ymnKD4XFR+MsRla3Bl3eSZMqf/qDPAs8chCIZHmUloUpg4aq02rxR5E39SWtAlZmn0e 3UtWau7pkftaptUMC9z8rDmgmg8ezsDpTkqJoL2Y=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1763308619; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type:Feedback-ID; bh=AiyBYeWfFSnRmoNvxWH7GjR1ukBqKJ2EMMwG/mDp1Sc=; b=cCsjHMXwb9KyvF+Gdga1l5In9KpDiRBLYgXkpE2NPMrrGTNT6MOX+lQGh6WPTjjF zKQcjr74Md1As2ELgdak3NBwd2F/iiNPy7Z6oyXjwwJd0+AbcDYmfN+gBMYVFCgVeEh pYV/ntRgtYi08Mtoyj01ergIPH2ac8zkRtU9CCyI=
+Date: Sun, 16 Nov 2025 15:56:59 +0000
+From: "Amazon.com" <auto-confirm@amazon.com>
+To: petestew@gmail.com
+Message-ID: <0100019a8d62468c-b5409c73-7781-404e-b782-475eb27a3921-000000@email.amazonses.com>
+Subject: Ordered: "Pet Bed Pillow" and 4 more items
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_1632475_1552400567.1763308619388"
+X-AMAZON-MAIL-RELAY-TYPE: notification
+Bounces-to: 2025111615565834cc541da68d474e94b67a409620p0na-C39ZAK9DXFBM50@bounces.amazon.com
+X-AMAZON-METADATA: CA=C39ZAK9DXFBM50-CU=A3Q2X5G2AM0PFS
+X-Original-MessageID: <urn.rtn.msg.2025111615565834cc541da68d474e94b67a409620p0na@1763308619390.>
+Feedback-ID: 1044873430::1.us-east-1.ZHcGJK6s+x+i9lRHKog4RW3tECwWIf1xzTYCZyUaiec=:AmazonSES
+X-SES-Outgoing: 2025.11.16-54.240.13.113
+
+------=_Part_1632475_1552400567.1763308619388
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+
+ =20
+
+
+    Thanks for your order, Pete!
+Ordered
+
+Shipped
+
+Out for delivery
+
+Delivered
+
+
+
+
+
+
+
+
+
+
+Arriving overnight 4 AM =E2=80=93 8 AM
+
+
+
+Pete - MADISON, TN
+
+Order #
+113-8378477-8133849
+
+View or edit order
+https://www.amazon.com/gp/css/order-details?orderID=3D113-8378477-8133849&r=
+ef_=3Dp_btn_fed_veo
+
+* Pet Bed Pillow
+  Quantity: 1
+
+
+* Epsom Salt Soak
+  Quantity: 4
+
+
+
+Grand Total:
+26.82 USD
+
+
+
+
+transactional-t12-golden-ticket-info
+
+https://www.amazon.com/blackfriday/13
+
+
+=C2=A92025 Amazon.com, Inc. or its affiliates. Amazon and all related marks=
+ are trademarks of Amazon.com, Inc. or its affiliates, Amazon.com, Inc. 410=
+ Terry Avenue N., Seattle, WA 98109.
+
+The payment for your invoice is processed by Amazon Payments, Inc. P.O. Box=
+ 81226 Seattle, Washington 98108-1226. If you need more information, please=
+ contact (866) 216-1075 By placing your order, you agree to Amazon.com=E2=
+=80=99s [Privacy Notice](https://www.amazon.com/gp/help/customer/display.ht=
+ml?ie=3DUTF8&nodeId=3D468496&ref_=3Dfed_roclt_default_policy) and [ Conditi=
+ons of Use](https://www.amazon.com/gp/help/customer/display.html?ie=3DUTF8&=
+nodeId=3D508088&ref_=3Dfed_roclt_default_policy). Unless otherwise noted, i=
+tems sold by Amazon.com are subject to sales tax in select states in accord=
+ance with the applicable laws of that state. If your order contains one or =
+more items from a seller other than Amazon.com, it may be subject to state =
+and local sales tax, depending upon the seller's business policies and the =
+location of their operations. Learn more about [tax and seller information]=
+(https://www.amazon.com/gp/help/customer/display.html?ie=3DUTF8&nodeId=3D20=
+2029700&ref_=3Dfed_roclt_default_policy).
+
+Amazon.com

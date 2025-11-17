@@ -32,7 +32,7 @@ app.post('/webhook/email', async (req: Request, res: Response) => {
     }
 
     // Parse webhook payload
-    const payload = this.parseWebhookPayload(req.body);
+    const payload = parseWebhookPayload(req.body);
 
     if (!payload) {
       logger.error('Invalid webhook payload');
@@ -40,7 +40,7 @@ app.post('/webhook/email', async (req: Request, res: Response) => {
     }
 
     // Verify this is an Amazon order email
-    if (!this.isAmazonOrderEmail(payload)) {
+    if (!isAmazonOrderEmail(payload)) {
       logger.info('Email is not an Amazon order confirmation, ignoring');
       return res.json({ status: 'ignored', message: 'Not an Amazon order email' });
     }
