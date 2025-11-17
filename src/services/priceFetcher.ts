@@ -1,18 +1,16 @@
-import axios from 'axios';
+import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import logger from '../utils/logger';
 
 /**
- * Fetches product prices from Amazon product pages
+ * Fetches product prices from Amazon product pages using Puppeteer
  */
 export class PriceFetcher {
-  private readonly userAgent =
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
   /**
    * Fetch the price of a product from its Amazon URL
    */
   async fetchPrice(productUrl: string): Promise<number | null> {
+    let browser = null;
     try {
       logger.info(`Fetching price from: ${productUrl}`);
 
@@ -23,21 +21,45 @@ export class PriceFetcher {
         return null;
       }
 
-      // Fetch the product page
-      const response = await axios.get(cleanUrl, {
-        headers: {
-          'User-Agent': this.userAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'DNT': '1',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-        },
-        timeout: 15000,
+      // Launch headless browser
+      browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--disable-gpu',
+          '--window-size=1920x1080',
+        ],
       });
 
-      const $ = cheerio.load(response.data);
+      const page = await browser.newPage();
+
+      // Set viewport and user agent to appear more like a real browser
+      await page.setViewport({ width: 1920, height: 1080 });
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      );
+
+      // Navigate to the product page
+      await page.goto(cleanUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+
+      // Wait a bit for dynamic content to load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Get the page HTML
+      const html = await page.content();
+
+      // Close the browser
+      await browser.close();
+      browser = null;
+
+      // Parse with Cheerio
+      const $ = cheerio.load(html);
 
       // Try multiple selectors to find the price
       const price = this.extractPriceFromPage($);
@@ -50,15 +72,17 @@ export class PriceFetcher {
       logger.warn(`Could not extract price from: ${cleanUrl}`);
       return null;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        logger.error(`HTTP error fetching price: ${error.message}`, {
-          status: error.response?.status,
-          url: productUrl,
-        });
-      } else {
-        logger.error(`Error fetching price: ${error}`, { url: productUrl });
-      }
+      logger.error(`Error fetching price: ${error}`, { url: productUrl });
       return null;
+    } finally {
+      // Ensure browser is closed even if there's an error
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (closeError) {
+          logger.error(`Error closing browser: ${closeError}`);
+        }
+      }
     }
   }
 
