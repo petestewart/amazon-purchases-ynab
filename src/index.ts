@@ -13,7 +13,7 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'amazon-ynab-importer' });
 });
 
@@ -65,7 +65,7 @@ app.post('/webhook/email', async (req: Request, res: Response) => {
 });
 
 // Gmail-style webhook (for Gmail API push notifications)
-app.post('/webhook/gmail', async (req: Request, res: Response) => {
+app.post('/webhook/gmail', async (_req: Request, res: Response) => {
   try {
     logger.info('Received Gmail push notification');
 

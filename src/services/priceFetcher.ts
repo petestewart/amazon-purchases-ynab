@@ -165,6 +165,8 @@ export class PriceFetcher {
           return false; // Break
         }
       }
+
+      return true; // Continue iteration
     });
 
     return foundPrice;

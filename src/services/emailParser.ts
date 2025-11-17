@@ -28,11 +28,22 @@ export class EmailParser {
   }
 
   /**
+   * Decode quoted-printable encoded text
+   */
+  private decodeQuotedPrintable(text: string): string {
+    return text
+      .replace(/=\r?\n/g, '') // Remove soft line breaks
+      .replace(/=([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  }
+
+  /**
    * Parse order information from HTML content
    */
   private parseFromHtml(html: string): AmazonOrder | null {
     try {
-      const $ = cheerio.load(html);
+      // Decode quoted-printable encoding if present
+      const decodedHtml = this.decodeQuotedPrintable(html);
+      const $ = cheerio.load(decodedHtml);
 
       // Extract order number - multiple possible selectors
       const orderNumber = this.extractOrderNumber($) || '';
@@ -105,16 +116,26 @@ export class EmailParser {
    * Extract grand total from the email
    */
   private extractGrandTotal($: cheerio.CheerioAPI): number {
-    // Look for "Grand Total" text
-    const grandTotalText = $('*:contains("Grand Total")')
-      .parent()
-      .text()
-      .replace(/[^\d.]/g, '');
+    // Look for "Grand Total" text and find the amount in the next cell or nearby
+    const grandTotalElement = $('*:contains("Grand Total")').filter(function() {
+      const text = $(this).text().trim();
+      return text === 'Grand Total:' || text === 'Grand Total';
+    }).first();
 
-    if (grandTotalText) {
-      const total = parseFloat(grandTotalText);
-      if (!isNaN(total)) {
-        return total;
+    if (grandTotalElement.length > 0) {
+      // Try to find the amount in the next sibling cell
+      let amountText = grandTotalElement.next().text();
+
+      // If not found, try looking in the parent row for a bold amount
+      if (!amountText || !/\$/.test(amountText)) {
+        amountText = grandTotalElement.closest('tr').find('td').filter(function() {
+          return /\$\s*\d+\.\d{2}/.test($(this).text());
+        }).text();
+      }
+
+      const match = amountText.match(/\$\s*([\d,]+\.\d{2})/);
+      if (match) {
+        return parseFloat(match[1].replace(/,/g, ''));
       }
     }
 
@@ -143,17 +164,29 @@ export class EmailParser {
     const items: AmazonOrderItem[] = [];
 
     // Method 1: Look for product links and associated text
-    $('a[href*="amazon.com/dp/"], a[href*="amazon.com/gp/product/"]').each((_, elem) => {
+    // Include redirect URLs that contain encoded /dp/ (%2Fdp%2F) or /gp/product/ (%2Fgp%2Fproduct%2F)
+    $('a[href*="amazon.com/dp/"], a[href*="amazon.com/gp/product/"], a[href*="amazon.com/gp/r.html"]').each((_, elem) => {
       const $link = $(elem);
 
       // Get product URL (decode it)
       let productUrl = $link.attr('href') || '';
+
+      // Skip recommended products (these appear in "Continue shopping deals" section)
+      if (productUrl.includes('AGH3Col') || productUrl.includes('dealz_cs')) {
+        return;
+      }
+
       if (productUrl.includes('amazon.com/gp/r.html')) {
         // This is a redirect URL, extract the actual product URL
         const urlMatch = productUrl.match(/U=([^&]+)/);
         if (urlMatch) {
           productUrl = decodeURIComponent(urlMatch[1]);
         }
+      }
+
+      // Skip if this isn't a product URL (after decoding)
+      if (!productUrl.includes('/dp/') && !productUrl.includes('/gp/product/')) {
+        return;
       }
 
       // Extract product name from link text or alt attribute
