@@ -168,22 +168,24 @@ function isAmazonOrderEmail(payload: EmailWebhookPayload): boolean {
  */
 async function startServer() {
   try {
-    // Verify YNAB connection on startup
+    // Start Express server first
+    app.listen(config.port, () => {
+      logger.info(`Server started on port ${config.port}`);
+      logger.info(`Environment: ${config.nodeEnv}`);
+      logger.info(`Webhook endpoint: POST http://localhost:${config.port}/webhook/email`);
+    });
+
+    // Verify YNAB connection after server starts
     logger.info('Verifying YNAB connection...');
     const connected = await ynabClient.verifyConnection();
 
     if (!connected) {
       logger.error('Failed to connect to YNAB. Please check your configuration.');
-      process.exit(1);
-    }
-
-    // Start Express server
-    app.listen(config.port, () => {
-      logger.info(`Server started on port ${config.port}`);
-      logger.info(`Environment: ${config.nodeEnv}`);
-      logger.info(`Webhook endpoint: POST http://localhost:${config.port}/webhook/email`);
+      logger.error('Server is running but will not be able to create transactions until YNAB credentials are configured.');
+    } else {
+      logger.info('YNAB connection verified successfully!');
       logger.info('Ready to receive Amazon order emails!');
-    });
+    }
   } catch (error) {
     logger.error('Failed to start server', error);
     process.exit(1);
