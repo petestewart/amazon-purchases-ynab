@@ -5,9 +5,10 @@ npm-debug.log
 # Build output
 dist
 
-# Logs
+# Logs (but keep package-lock.json)
 logs
 *.log
+!package-lock.json
 
 # Environment files
 .env
